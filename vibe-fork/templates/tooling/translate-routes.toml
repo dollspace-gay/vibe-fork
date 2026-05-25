@@ -1,0 +1,57 @@
+# translate-routes.toml — read-gate route table
+#
+# Consumed by tooling/translate-discipline.py to gate Edit/Write
+# on target source files. Each [[route]] declares:
+#
+#   crate_pattern : exact path or glob (supports * and **) matched against
+#                   the repo-relative target file.
+#   upstream      : list of upstream paths at least ONE of which must be
+#                   Read before the edit.
+#   design        : path to the .design/<area>/<doc>.md governing this
+#                   translation. MUST exist on disk; if missing, the hook
+#                   blocks with acto-doc-author dispatch instructions.
+#   parity_ops    : (optional) list of verification op names this file
+#                   owns. The per-op smoke gate runs each listed op via
+#                   the project's verification harness and requires the
+#                   integer grep count >= 1. Empty list = no per-op
+#                   verification (file is helper / utility; the crate
+#                   test suite is the gate).
+#
+# Additionally, every gated edit requires Read of goal.md in the same
+# session (the global discipline file).
+#
+# Files without a matching route are BLOCKED until a route is added.
+# This is the strict-mode default per goal.md R-XLATE-2.
+#
+# ─────────────────────────────────────────────────────────────────────────
+# EXAMPLE ROUTES — replace with your project's actual mappings
+# ─────────────────────────────────────────────────────────────────────────
+
+# [[route]]
+# crate_pattern = "my-crate/src/arithmetic.rs"
+# upstream = [
+#   "/path/to/upstream/aten/src/ATen/native/BinaryOps.cpp",
+#   "/path/to/upstream/torch/_torch_docs.py",
+# ]
+# design = ".design/my-crate/arithmetic.md"
+# parity_ops = ["add", "sub", "mul", "div"]
+
+# [[route]]
+# crate_pattern = "my-crate/src/transcendental.rs"
+# upstream = [
+#   "/path/to/upstream/aten/src/ATen/native/UnaryOps.cpp",
+# ]
+# design = ".design/my-crate/transcendental.md"
+# parity_ops = ["sin", "cos", "exp", "log"]
+
+# ─────────────────────────────────────────────────────────────────────────
+# Helper / utility files (no per-op verification) — use parity_ops = []
+# ─────────────────────────────────────────────────────────────────────────
+
+# [[route]]
+# crate_pattern = "my-crate/src/shape.rs"
+# upstream = [
+#   "/path/to/upstream/aten/src/ATen/TensorShape.cpp",
+# ]
+# design = ".design/my-crate/shape.md"
+# parity_ops = []
